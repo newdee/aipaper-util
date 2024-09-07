@@ -1,4 +1,4 @@
-module github.com/newdee/util
+module github.com/newdee/aipaper-util
 
 go 1.22.3
 

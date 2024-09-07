@@ -3,7 +3,7 @@ package common
 import (
 	"testing"
 
-	"github.com/newdee/util/config"
+	"github.com/newdee/aipaper-util/config"
 )
 
 func TestGetMysqlConfig(t *testing.T) {

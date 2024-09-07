@@ -1,9 +1,9 @@
 package common
 
 import (
-	"github.com/newdee/util/config"
-	"github.com/newdee/util/database"
-	"github.com/newdee/util/sms"
+	"github.com/newdee/aipaper-util/config"
+	"github.com/newdee/aipaper-util/database"
+	"github.com/newdee/aipaper-util/sms"
 	oaconfig "github.com/silenceper/wechat/v2/officialaccount/config"
 )
 

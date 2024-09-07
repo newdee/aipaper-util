@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/newdee/util/database"
+	"github.com/newdee/aipaper-util/database"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

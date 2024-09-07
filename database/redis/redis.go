@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/newdee/util/database"
+	"github.com/newdee/aipaper-util/database"
 )
 
 var (

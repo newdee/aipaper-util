@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/newdee/util/database"
+	"github.com/newdee/aipaper-util/database"
 	"github.com/stretchr/testify/require"
 )
 

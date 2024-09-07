@@ -1,6 +1,6 @@
 package common
 
-import "github.com/newdee/util/config"
+import "github.com/newdee/aipaper-util/config"
 
 var MapEnvToConfig = map[config.EnvType]config.Param{
 	config.DevEnv: {
