@@ -1,6 +1,6 @@
 module github.com/newdee/aipaper-util
 
-go 1.22.3
+go 1.21.0
 
 require (
 	github.com/apistd/uni-go-sdk v0.0.2
