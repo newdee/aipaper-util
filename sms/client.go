@@ -2,10 +2,12 @@ package sms
 
 import (
 	"fmt"
+	"github.com/newdee/aipaper-util/log"
 	"math/rand"
 	"time"
 
 	unisms "github.com/apistd/uni-go-sdk/sms"
+	"github.com/newdee/aipaper-util/config/business/common"
 )
 
 var globalSmsCli *unisms.UniSMSClient
@@ -32,15 +34,19 @@ func Send(phoneNum ...string) (string, error) {
 	if globalSmsCli == nil {
 		return "", fmt.Errorf("global sms client is nil")
 	}
+	cfg, err := common.GetSMSConfig()
+	if err != nil {
+		log.Errorf("get sms config failed, err:%v", err)
+		return "", err
+	}
 	smsCode := generateSMSCode()
-
 	message := unisms.BuildMessage()
 	message.SetTo(phoneNum...)
-	message.SetSignature("浅思科技")
-	message.SetTemplateId("pub_verif_ttl3")
+	message.SetSignature(cfg.Signature)
+	message.SetTemplateId(cfg.TemplateID)
 	message.SetTemplateData(map[string]string{
 		"code": smsCode,
-		"ttl":  "1",
+		"ttl":  cfg.TTL,
 	})
 
 	response, err := globalSmsCli.Send(message)

@@ -3,17 +3,12 @@ package common
 import (
 	"github.com/newdee/aipaper-util/config"
 	"github.com/newdee/aipaper-util/database"
-	"github.com/newdee/aipaper-util/sms"
 	oaconfig "github.com/silenceper/wechat/v2/officialaccount/config"
 )
 
-func getConfig(key string) (*database.DBConfig, error) {
-	cfg, err := config.Get(config.Common)
-	if err != nil {
-		return nil, err
-	}
+func getDBConfig(key string) (*database.DBConfig, error) {
 	var dbConfig database.DBConfig
-	err = cfg.GetWithUnmarshal(key, &dbConfig, &config.JSONUnmarshaler{})
+	err := getConfig(key, &dbConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -21,24 +16,61 @@ func getConfig(key string) (*database.DBConfig, error) {
 }
 
 func GetMysqlConfig() (*database.DBConfig, error) {
-	return getConfig("mysql")
+	return getDBConfig("mysql")
 }
 
 func GetRedisConfig() (*database.DBConfig, error) {
-	return getConfig("redis")
+	return getDBConfig("redis")
 }
 
-func GetSMSConfig() (*sms.Param, error) {
+type MsgQueueConfig struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Vhost    string `json:"vhost"`
+}
+
+func getConfig(key string, conf interface{}) error {
+	cfg, err := config.Get(config.Common)
+	if err != nil {
+		return err
+	}
+
+	err = cfg.GetWithUnmarshal(key, conf, &config.JSONUnmarshaler{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetMsgQueueConfig() (*MsgQueueConfig, error) {
+	var conf MsgQueueConfig
+	err := getConfig("msg_queue", &conf)
+	if err != nil {
+		return nil, err
+	}
+	return &conf, err
+}
+
+// Param 短信参数
+type Param struct {
+	Signature  string `json:"signature"`
+	TemplateID string `json:"template_id"`
+	TTL        string `json:"ttl"`
+}
+
+func GetSMSConfig() (*Param, error) {
 	cfg, err := config.Get(config.Common)
 	if err != nil {
 		return nil, err
 	}
-	var smsConfig sms.Param
-	err = cfg.GetWithUnmarshal("sms", &smsConfig, &config.JSONUnmarshaler{})
+	var param Param
+	err = cfg.GetWithUnmarshal("sms", &param, &config.JSONUnmarshaler{})
 	if err != nil {
 		return nil, err
 	}
-	return &smsConfig, nil
+	return &param, nil
 }
 
 func GetOfficialAccountConfig() (*oaconfig.Config, error) {
@@ -53,8 +85,4 @@ func GetOfficialAccountConfig() (*oaconfig.Config, error) {
 		return nil, err
 	}
 	return oaCfg, nil
-}
-
-func GetAudioCloneRouteConfig() (*database.DBConfig, error) {
-	return getConfig("audio_clone")
 }

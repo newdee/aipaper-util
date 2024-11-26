@@ -6,7 +6,9 @@ require (
 	github.com/apistd/uni-go-sdk v0.0.2
 	github.com/apolloconfig/agollo/v4 v4.4.0
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/silenceper/wechat/v2 v2.1.6
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
@@ -39,5 +41,6 @@ require (
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

@@ -21,8 +21,8 @@ func init() {
 type KeyType string
 
 const (
-	Common KeyType = "common"
-	Login  KeyType = "login"
+	Common  KeyType = "common"
+	AIPaper KeyType = "aipaper"
 )
 
 func Register(key KeyType, mapEnvToConfig map[EnvType]Param, env EnvType) error {
