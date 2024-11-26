@@ -2,7 +2,6 @@ package queue
 
 import (
 	"fmt"
-
 	"github.com/newdee/aipaper-util/config/business/common"
 	"github.com/rabbitmq/amqp091-go"
 )
@@ -29,6 +28,7 @@ func SendMsg(queueName string, msg string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open a channel: %v", err)
 	}
+	defer ch.Close()
 
 	// queue, err := ch.QueueDeclare(queueName, false, false, false, false, nil)
 	// if err != nil {
