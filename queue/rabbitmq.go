@@ -5,6 +5,7 @@ import (
 	"github.com/newdee/aipaper-util/config/business/common"
 	"github.com/newdee/aipaper-util/log"
 	"github.com/rabbitmq/amqp091-go"
+	"time"
 )
 
 var conn *amqp091.Connection
@@ -17,16 +18,24 @@ func InitMQ(conf common.MsgQueueConfig) error {
 	var err error
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/%s", conf.Username, conf.Password, conf.Host, conf.Port, conf.Vhost)
 	fmt.Println("uri:", uri)
-	conn, err = amqp091.Dial(uri)
+	conn, err = amqp091.DialConfig(uri, amqp091.Config{
+		Heartbeat: 30 * time.Second, // 心跳间隔设置为30s
+	})
 	return err
 }
 
 func reconnect() error {
 	log.Debugf("MQ client is closed, trying to reconnect...")
-	var err error
+	// 从Apollo获取MQ配置
 	conf, err := common.GetMsgQueueConfig()
+	if err != nil {
+		return fmt.Errorf("failed to get MQ config: %v", err)
+	}
+	// 重新建立长连接
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/%s", conf.Username, conf.Password, conf.Host, conf.Port, conf.Vhost)
-	conn, err = amqp091.Dial(uri)
+	conn, err = amqp091.DialConfig(uri, amqp091.Config{
+		Heartbeat: 30 * time.Second, // 心跳间隔设置为30s
+	})
 	if err != nil {
 		return fmt.Errorf("failed to reconnect to MQ: %v", err)
 	}
