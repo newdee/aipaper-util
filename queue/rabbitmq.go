@@ -125,6 +125,6 @@ func SendMsg(queueName string, msg string) error {
 func monitorConnection() {
 	closeChan := conn.NotifyClose(make(chan *amqp091.Error))
 	for err := range closeChan {
-		log.Errorf("RabbitMQ connection closed: %v", err)
+		log.ErrorfAlert("RabbitMQ connection closed unexpectedly: %v", err)
 	}
 }
