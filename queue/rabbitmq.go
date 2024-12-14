@@ -23,8 +23,11 @@ func InitMQ(conf common.MsgQueueConfig) error {
 	var err error
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/%s", conf.Username, conf.Password, conf.Host, conf.Port, conf.Vhost)
 	fmt.Println("uri:", uri)
+	// 提高MQ连接超时时间
+	dial := amqp091.DefaultDial(60 * time.Second)
 	conn, err = amqp091.DialConfig(uri, amqp091.Config{
-		Heartbeat: 30 * time.Second, // 心跳间隔设置为30s
+		Heartbeat: 30 * time.Second, // 心跳间隔设置为30s，减少网络不稳时的误判
+		Dial:      dial,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to connect to MQ: %v", err)
@@ -64,8 +67,11 @@ func reconnect() error {
 
 	// 重新建立长连接
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/%s", conf.Username, conf.Password, conf.Host, conf.Port, conf.Vhost)
+	// 提高MQ连接超时时间
+	dial := amqp091.DefaultDial(60 * time.Second)
 	conn, err = amqp091.DialConfig(uri, amqp091.Config{
-		Heartbeat: 30 * time.Second, // 心跳间隔设置为30s
+		Heartbeat: 30 * time.Second, // 心跳间隔设置为30s，减少网络不稳时的误判
+		Dial:      dial,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to reconnect to MQ: %v", err)
