@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"testing"
@@ -10,6 +11,13 @@ func TestDebugf(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		Debug("log i")
 		Debugf("log i:%v", i)
+	}
+}
+
+func TestErrorfFeishuAlert(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		err := fmt.Errorf("test errorf feishu alert")
+		ErrorfAlert("log i:%d, err:%v", i, err)
 	}
 }
 
