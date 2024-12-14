@@ -5,27 +5,52 @@ import (
 	"github.com/newdee/aipaper-util/config/business/common"
 	"github.com/newdee/aipaper-util/log"
 	"github.com/rabbitmq/amqp091-go"
+	"sync"
 	"time"
 )
 
 var conn *amqp091.Connection
+var channelPool chan *amqp091.Channel
+var poolSize = 20
+var mu sync.Mutex
 
 func GetGlobalClient() *amqp091.Connection {
 	return conn
 }
 
 func InitMQ(conf common.MsgQueueConfig) error {
+	// 初始化MQ长连接
 	var err error
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/%s", conf.Username, conf.Password, conf.Host, conf.Port, conf.Vhost)
 	fmt.Println("uri:", uri)
 	conn, err = amqp091.DialConfig(uri, amqp091.Config{
 		Heartbeat: 30 * time.Second, // 心跳间隔设置为30s
 	})
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to connect to MQ: %v", err)
+	}
+
+	// 初始化MQ的channel池
+	channelPool = make(chan *amqp091.Channel, poolSize)
+	for i := 0; i < poolSize; i++ {
+		ch, err := conn.Channel()
+		if err != nil {
+			return fmt.Errorf("init mq channelPool failed, reason：[failed to open a channel: %v]", err)
+		}
+		channelPool <- ch
+	}
+	return nil
 }
 
 func reconnect() error {
 	log.Debugf("MQ client is closed, trying to reconnect...")
+	mu.Lock()
+	defer mu.Unlock()
+
+	// Check if connection has already been re-established by another goroutine
+	if conn != nil && !conn.IsClosed() {
+		return nil
+	}
 	// 从Apollo获取MQ配置
 	conf, err := common.GetMsgQueueConfig()
 	if err != nil {
@@ -39,6 +64,16 @@ func reconnect() error {
 	if err != nil {
 		return fmt.Errorf("failed to reconnect to MQ: %v", err)
 	}
+	// 重新初始化channel池
+	channelPool = make(chan *amqp091.Channel, poolSize)
+	for i := 0; i < poolSize; i++ {
+		ch, err := conn.Channel()
+		if err != nil {
+			return fmt.Errorf("failed to open a channel: %v", err)
+		}
+		channelPool <- ch
+	}
+
 	log.Infof("Successfully reconnected to MQ.")
 	return nil
 }
@@ -54,17 +89,24 @@ func SendMsg(queueName string, msg string) error {
 			return err
 		}
 	}
-	// 打开通道
-	ch, err := conn.Channel()
-	if err != nil {
-		return fmt.Errorf("failed to open a channel: %v", err)
+
+	// 从channel池中获取一个可用的channel
+	var ch *amqp091.Channel
+	select {
+	case ch = <-channelPool:
+		// 成功获取到一个 Channel
+	case <-time.After(10 * time.Second): // 当channel池中暂时没有可用channel时，等待10s
+		return fmt.Errorf("waiting to obtain an available channel timeout")
 	}
-	defer ch.Close()
+
+	defer func() {
+		// 将 Channel 归还到池中
+		channelPool <- ch
+	}()
+
 	// 推送消息
-	err = ch.Publish("", queueName, false, false, amqp091.Publishing{
+	return ch.Publish("", queueName, false, false, amqp091.Publishing{
 		ContentType: "text/plain",
 		Body:        []byte(msg),
 	})
-
-	return err
 }
