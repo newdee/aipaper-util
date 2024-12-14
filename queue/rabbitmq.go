@@ -39,6 +39,10 @@ func InitMQ(conf common.MsgQueueConfig) error {
 		}
 		channelPool <- ch
 	}
+
+	// 启动一个协程监听连接关闭事件
+	go monitorConnection()
+
 	return nil
 }
 
@@ -47,15 +51,17 @@ func reconnect() error {
 	mu.Lock()
 	defer mu.Unlock()
 
-	// Check if connection has already been re-established by another goroutine
+	// 检查连接是否已经被其他协程重新建立
 	if conn != nil && !conn.IsClosed() {
 		return nil
 	}
+
 	// 从Apollo获取MQ配置
 	conf, err := common.GetMsgQueueConfig()
 	if err != nil {
 		return fmt.Errorf("failed to get MQ config: %v", err)
 	}
+
 	// 重新建立长连接
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/%s", conf.Username, conf.Password, conf.Host, conf.Port, conf.Vhost)
 	conn, err = amqp091.DialConfig(uri, amqp091.Config{
@@ -64,6 +70,7 @@ func reconnect() error {
 	if err != nil {
 		return fmt.Errorf("failed to reconnect to MQ: %v", err)
 	}
+
 	// 重新初始化channel池
 	channelPool = make(chan *amqp091.Channel, poolSize)
 	for i := 0; i < poolSize; i++ {
@@ -73,6 +80,9 @@ func reconnect() error {
 		}
 		channelPool <- ch
 	}
+
+	// 重新启动连接关闭监听
+	go monitorConnection()
 
 	log.Infof("Successfully reconnected to MQ.")
 	return nil
@@ -109,4 +119,12 @@ func SendMsg(queueName string, msg string) error {
 		ContentType: "text/plain",
 		Body:        []byte(msg),
 	})
+}
+
+// 监听MQ连接是否关闭
+func monitorConnection() {
+	closeChan := conn.NotifyClose(make(chan *amqp091.Error))
+	for err := range closeChan {
+		log.Errorf("RabbitMQ connection closed: %v", err)
+	}
 }
