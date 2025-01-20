@@ -54,14 +54,12 @@ type HomeData struct {
 	Features   []Feature  `json:"features"`
 }
 
-// RechargeInfo 充值积分配置
-type RechargeInfo struct {
-	RechargeList []struct {
-		Index       int     `json:"index"`
-		Description string  `json:"description"`
-		Price       float64 `json:"price,omitempty"`
-		GiftPoints  float64 `json:"gift_points,omitempty"`
-	} `json:"recharge_list"`
+// Recharge 充值积分配置
+type Recharge struct {
+	Index       int     `json:"index"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price,omitempty"`
+	GiftPoints  float64 `json:"gift_points,omitempty"`
 }
 
 func GetFeatureList() ([]Feature, error) {
@@ -103,12 +101,12 @@ func GetCategoryProductList() ([]Category, error) {
 	return categoryList, nil
 }
 
-func GetRechargeInfo() (*RechargeInfo, error) {
+func GetRechargeList() ([]Recharge, error) {
 	cfg, err := config.Get(config.Common)
 	if err != nil {
 		return nil, err
 	}
-	var rechargeInfo *RechargeInfo
+	var rechargeInfo []Recharge
 	err = cfg.GetWithUnmarshal("recharge_info", &rechargeInfo, &config.JSONUnmarshaler{})
 	if err != nil {
 		return nil, err
