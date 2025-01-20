@@ -58,8 +58,8 @@ type HomeData struct {
 type Recharge struct {
 	Index       int     `json:"index"`
 	Description string  `json:"description"`
-	Price       float64 `json:"price,omitempty"`
-	GiftPoints  float64 `json:"gift_points,omitempty"`
+	Price       float64 `json:"price"`
+	GiftPoints  float64 `json:"gift_points"`
 }
 
 func GetFeatureList() ([]Feature, error) {
