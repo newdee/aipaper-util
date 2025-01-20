@@ -107,7 +107,7 @@ func GetRechargeList() ([]Recharge, error) {
 		return nil, err
 	}
 	var rechargeInfo []Recharge
-	err = cfg.GetWithUnmarshal("recharge_info", &rechargeInfo, &config.JSONUnmarshaler{})
+	err = cfg.GetWithUnmarshal("recharge_list", &rechargeInfo, &config.JSONUnmarshaler{})
 	if err != nil {
 		return nil, err
 	}
