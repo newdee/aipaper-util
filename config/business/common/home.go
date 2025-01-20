@@ -1,13 +1,30 @@
 package common
 
 import (
+	"fmt"
 	"github.com/newdee/aipaper-util/config"
 )
 
+type Product struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Price       float64 `json:"price"`
+	IsSupported bool    `json:"is_supported"`
+}
+
+type Language struct {
+	Language string `json:"language"`
+	Value    string `json:"value"`
+}
+
 // Category 描述信息结构体
 type Category struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name          string  `json:"name"`
+	Description   string  `json:"description"`
+	TotalPrice    float64 `json:"total_price"`
+	OriginalPrice float64 `json:"original_price"`
+	MinWordNum    int     `json:"min_word_num"`
+	MaxWordNum    int     `json:"max_word_num"`
 }
 
 // Subcategory 子分类结构体
@@ -37,17 +54,14 @@ type HomeData struct {
 	Features   []Feature  `json:"features"`
 }
 
-func GetCategoryList() ([]Category, error) {
-	cfg, err := config.Get(config.Common)
-	if err != nil {
-		return nil, err
-	}
-	var categoryList []Category
-	err = cfg.GetWithUnmarshal("category", &categoryList, &config.JSONUnmarshaler{})
-	if err != nil {
-		return nil, err
-	}
-	return categoryList, nil
+// RechargeInfo 充值积分配置
+type RechargeInfo struct {
+	RechargeList []struct {
+		Index       int     `json:"index"`
+		Description string  `json:"description"`
+		Price       float64 `json:"price,omitempty"`
+		GiftPoints  float64 `json:"gift_points,omitempty"`
+	} `json:"recharge_list"`
 }
 
 func GetFeatureList() ([]Feature, error) {
@@ -74,4 +88,84 @@ func GetSubjectList() ([]Subject, error) {
 		return nil, err
 	}
 	return subjectList, nil
+}
+
+func GetCategoryProductList() ([]Category, error) {
+	cfg, err := config.Get(config.Common)
+	if err != nil {
+		return nil, err
+	}
+	var categoryList []Category
+	err = cfg.GetWithUnmarshal("category_product", &categoryList, &config.JSONUnmarshaler{})
+	if err != nil {
+		return nil, err
+	}
+	return categoryList, nil
+}
+
+func GetRechargeInfo() (*RechargeInfo, error) {
+	cfg, err := config.Get(config.Common)
+	if err != nil {
+		return nil, err
+	}
+	var rechargeInfo *RechargeInfo
+	err = cfg.GetWithUnmarshal("recharge_info", &rechargeInfo, &config.JSONUnmarshaler{})
+	if err != nil {
+		return nil, err
+	}
+	return rechargeInfo, nil
+}
+
+func GetCategoryList() ([]Category, error) {
+	cfg, err := config.Get(config.Common)
+	if err != nil {
+		return nil, err
+	}
+	var categoryList []Category
+	err = cfg.GetWithUnmarshal("category", &categoryList, &config.JSONUnmarshaler{})
+	if err != nil {
+		return nil, err
+	}
+	return categoryList, nil
+}
+
+func GetCategoryByName(name string) (*Category, error) {
+	list, err := GetCategoryList()
+	if err != nil {
+		return nil, fmt.Errorf("get category failed")
+	}
+
+	for _, item := range list {
+		if item.Name == name {
+			return &item, nil
+		}
+	}
+
+	return nil, fmt.Errorf("category not found")
+}
+
+func GetLanguageList() ([]Language, error) {
+	cfg, err := config.Get(config.AIPaper)
+	if err != nil {
+		return nil, err
+	}
+	var languageList []Language
+	err = cfg.GetWithUnmarshal("language", &languageList, &config.JSONUnmarshaler{})
+	if err != nil {
+		return nil, err
+	}
+	return languageList, nil
+}
+
+func GetProductList() ([]Product, error) {
+	cfg, err := config.Get(config.AIPaper)
+	if err != nil {
+		return nil, err
+	}
+	var productList []Product
+	err = cfg.GetWithUnmarshal("product", &productList, &config.JSONUnmarshaler{})
+	if err != nil {
+		return nil, err
+	}
+	return productList, nil
 }
