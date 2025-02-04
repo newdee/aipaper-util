@@ -9,6 +9,8 @@ type WordsPackage struct {
 	PackageDescription string     `json:"package_description"`
 	PackageProductId   string     `json:"package_product_id"`
 	GiftList           []GiftData `json:"giftList"`
+	OriginalPrice      float64    `json:"original_price"` // 产品原价，单位元，需要业务根据产品ID从product_info获取
+	Price              float64    `json:"price"`          // 产品售价，单位元，需要业务根据产品ID从product_info获取
 }
 
 type GiftData struct {
@@ -37,6 +39,8 @@ type ChatallPackage struct {
 	PackageDescription string      `json:"package_description"`
 	PackageProductId   string      `json:"package_product_id"`
 	ModelList          []ModelData `json:"model_list"`
+	OriginalPrice      float64     `json:"original_price"` // 产品原价，单位元，需要业务根据产品ID从product_info获取
+	Price              float64     `json:"price"`          // 产品售价，单位元，需要业务根据产品ID从product_info获取
 }
 
 type ModelData struct {
