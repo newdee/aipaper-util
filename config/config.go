@@ -11,9 +11,11 @@ type EnvType string
 
 const (
 	// DevEnv dev环境
-	DevEnv EnvType = "dev"
+	DevEnv          EnvType = "dev"
+	DevEnvApiServer         = "devapi.mixpaper.cn"
 	// ProdEnv 正式环境
-	ProdEnv EnvType = "prod"
+	ProdEnv       EnvType = "prod"
+	ProdApiServer         = "api.mixpaper.cn"
 )
 
 type Config interface {
