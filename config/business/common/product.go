@@ -8,7 +8,7 @@ type WordsPackage struct {
 	PackageName        string     `json:"package_name"`
 	PackageDescription string     `json:"package_description"`
 	PackageProductId   string     `json:"package_product_id"`
-	PackageTotalWords  string     `json:"package_total_words"` // 套餐包的字数
+	PackageTotalWords  uint64     `json:"package_total_words"` // 套餐包的字数
 	GiftList           []GiftData `json:"giftList"`
 	OriginalPrice      float64    `json:"original_price"` // 产品原价，单位元，需要业务根据产品ID从product_info获取
 	Price              float64    `json:"price"`          // 产品售价，单位元，需要业务根据产品ID从product_info获取
