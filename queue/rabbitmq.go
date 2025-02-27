@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/newdee/aipaper-util/config/business/common"
 	"github.com/newdee/aipaper-util/log"
 	"github.com/rabbitmq/amqp091-go"
@@ -120,11 +121,15 @@ func SendMsg(queueName string, msg string) error {
 		channelPool <- ch
 	}()
 
+	// 生成全局唯一的 message_id
+	messageID := uuid.New().String()
+
 	// 推送消息
 	return ch.Publish("", queueName, false, false, amqp091.Publishing{
 		ContentType: "text/plain",
 		Body:        []byte(msg),
 		Headers:     amqp091.Table{"x-retry": 1}, // 初始化重试次数为1
+		MessageId:   messageID,
 	})
 }
 
