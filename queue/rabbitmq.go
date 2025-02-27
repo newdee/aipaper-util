@@ -124,6 +124,7 @@ func SendMsg(queueName string, msg string) error {
 	return ch.Publish("", queueName, false, false, amqp091.Publishing{
 		ContentType: "text/plain",
 		Body:        []byte(msg),
+		Headers:     amqp091.Table{"x-retry": 0}, // 初始化重试次数为0
 	})
 }
 
